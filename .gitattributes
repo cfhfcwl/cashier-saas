@@ -1,0 +1,24 @@
+# 统一换行符，避免 Windows / Linux 协作时整文件 diff
+* text=auto
+
+*.php   text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.sql   text eol=lf
+*.html  text eol=lf
+*.css   text eol=lf
+*.js    text eol=lf
+
+*.bat   text eol=crlf
+*.ps1   text eol=crlf
+
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.gif   binary
+*.ico   binary
+
+# 让 GitHub 语言统计不再把仓库误判为 HTML
+assets/* linguist-vendored

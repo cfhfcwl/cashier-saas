@@ -1,0 +1,47 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8081:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # nginx 只负责收请求和回静态文件，直接只读挂载宿主机代码即可；
+      # php 容器用的是镜像里 COPY 进去的那份代码，两边内容一致（同一次 clone）
+      - ./:/var/www/html:ro
+    depends_on:
+      - php
+
+  php:
+    build: .
+    volumes:
+      # TP 只从 .env 文件读配置，把宿主机的 .env 挂进去（只读）
+      - ./.env:/var/www/html/.env:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  db_data:

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    name: 语法检查与依赖校验
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mbstring, json, openssl, fileinfo
+          tools: composer:v2
+          coverage: none
+
+      - name: 校验 composer.json
+        run: composer validate --no-check-publish
+
+      - name: 安装依赖
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: PHP 语法检查
+        run: |
+          set -e
+          find app config route public -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+          echo "全部 PHP 文件语法检查通过"
+
+      - name: 检查是否误提交敏感文件
+        run: |
+          set -e
+          if git ls-files --error-unmatch .env > /dev/null 2>&1; then
+            echo "错误：.env 被提交进仓库了，请立刻移除"
+            exit 1
+          fi
+          echo "未发现被提交的 .env"

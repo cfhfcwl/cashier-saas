@@ -1,0 +1,33 @@
+# ── 依赖与运行时 ──────────────────────────────
+/vendor
+/runtime
+/node_modules
+
+# ── 环境变量与凭据 ────────────────────────────
+.env
+.env.*
+!.example.env
+
+# ── 日志与缓存 ────────────────────────────────
+*.log
+/runtime/*
+
+# ── 编辑器与 IDE ──────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.sublime-*
+
+# ── 前端构建产物（本仓库是纯后端 API，产物不入库）──
+/assets
+/index.html
+/404.html
+/nginx-rewrite.conf
+
+# ── 系统文件 ──────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+!.env.docker.example
+/info/
